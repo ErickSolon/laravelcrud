@@ -13,4 +13,7 @@ class Pessoas extends Model
         'idade',
     ];
 
+    public function infos() {
+        return $this->hasOne(Infos::class);
+    }
 }

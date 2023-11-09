@@ -9,26 +9,47 @@ class PessoasController extends Controller
 {
     public function index()
     {
-        return Pessoas::all();
+        $pessoas = Pessoas::with('infos')->get();
+        return $pessoas;
     }
 
     public function store(Request $request)
     {
-        return Pessoas::create($request->all());
+        $pessoaData = $request->all();
+        $infosData = $pessoaData['infos'];
+        unset($pessoaData['infos']);
+
+        $pessoa = Pessoas::create($pessoaData);
+        $pessoa->infos()->create($infosData);
+
+        return $pessoa->load('infos');
     }
 
     public function show(string $id)
     {
-        return Pessoas::findOrFail($id);
+        $pessoa = Pessoas::with('infos')->findOrFail($id);
+        return $pessoa;
     }
 
     public function update(Request $request, string $id)
     {
-        return Pessoas::find($id)->update($request->all());
+        $pessoa = Pessoas::findOrFail($id);
+        $pessoaData = $request->all();
+        $infosData = $pessoaData['infos'];
+        unset($pessoaData['infos']);
+
+        $pessoa->update($pessoaData);
+        $pessoa->infos()->update($infosData);
+
+        return $pessoa->load('infos');
     }
 
     public function destroy(string $id)
     {
-        return Pessoas::find($id)->delete();
+        $pessoa = Pessoas::findOrFail($id);
+        $pessoa->infos()->delete();
+        $pessoa->delete();
+
+        return response()->json(['message' => 'Pessoa deleted successfully']);
     }
 }
